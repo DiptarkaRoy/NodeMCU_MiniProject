@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IOT Water-level Indicator NodeMCU</title>
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Kiwi+Maru:wght@500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="./style.css">
+    <link rel="stylesheet" href="./reusablestyles.css">
+</head>
+
+<body>
+    <nav class="navbar">Smart IOT based Water level Indicator</nav>
+    <main>
+        <div class="top">
+            <div id="sensor-info">
+                <div>Water Level - <span id="water-status">EMPTY</span></div>
+            </div>
+            <div id="sensor-log">
+                <!-- log will show here -->
+            </div>
+        </div>
+        <div class="bottom">
+            <div id="control-section">
+                <div id="motor-control">
+                    <p class="switch-label">Motor Switch</p>
+                    <input class="switch" type="checkbox" name="motor-switch">
+                </div>
+            </div>
+        </div>
+    </main>
+    <script src="./functions.js"></script>
+    <!-- <script src="./script.js"></script> -->
+</body>
+
+</html>
