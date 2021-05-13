@@ -8,8 +8,116 @@
     <link rel="preconnect" href="https://fonts.gstatic.com">
     <link href="https://fonts.googleapis.com/css2?family=Kiwi+Maru:wght@500&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@500&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="./style.css">
-    <link rel="stylesheet" href="./reusablestyles.css">
+
+    <style>
+        body {
+            height: 100vh;
+            overflow-y: hidden;
+        }
+
+        .navbar {
+            color: white;
+            background: black;
+            width: 100%;
+            font-size: 30px;
+        }
+
+        main {
+            height: 100%;
+            background: aliceblue;
+        }
+
+        .top {
+            width: 100%;
+            height: 50%;
+            display: flex;
+            border-bottom: thin solid black;
+            font-size: 13px;
+        }
+
+        .bottom {
+            width: 100%;
+            height: 50%;
+            display: flex;
+            border-top: thin solid black;
+        }
+
+        #sensor-info {
+            width: 60%;
+            height: 100%;
+            padding-top: 15px;
+            border-right: thin solid black;
+        }
+
+        #sensor-log {
+            overflow-y: scroll;
+            width: 40%;
+            height: 100%;
+            padding-top: 15px;
+            background: rgb(39, 39, 39);
+            color: whitesmoke;
+            font-family: 'Fira Code', monospace;
+        }
+
+        #motor-control {
+            display: flex;
+        }
+
+        * {
+            margin: 0px;
+            padding: 0px;
+            text-align: center;
+            font-family: 'Kiwi Maru', serif;
+            box-sizing: border-box;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .log {
+            padding-left: 10px;
+            text-align: left;
+            font-family: 'Fira Code', monospace;
+        }
+
+        .switch-label {
+            margin-right: 15px;
+            font-weight: 600;
+        }
+
+        .switch {
+            position: relative;
+            height: 40px;
+            width: 80px;
+            -webkit-appearance: none;
+            background: #c6c6c6;
+            outline: none;
+            border-radius: 20px;
+            box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.2);
+            transition: 0.5s;
+        }
+
+        .switch:checked {
+            background: #03a9f4;
+        }
+
+        .switch::before {
+            content: '';
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            border-radius: 20px;
+            top: 0px;
+            left: 0px;
+            background: #fff;
+            transform: scale(1.1);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, .2);
+            transition: .5s;
+        }
+
+        .switch:checked::before {
+            left: 40px;
+        }
+    </style>
 </head>
 
 <body>
@@ -32,8 +140,140 @@
             </div>
         </div>
     </main>
-    <script src="./functions.js"></script>
-    <!-- <script src="./script.js"></script> -->
+    <script>
+        //DOM variables
+        const motorSwitch = document.getElementsByClassName('switch'),
+            sensorLog = document.querySelector('#sensor-log');
+
+        //Variables
+        let newLog,
+            time = new Date();
+
+        // NodeMCU Variables
+        const waterLevel = false;
+        let motorStatus = true;
+
+        //Initialising everything
+        init();
+
+        //============== functions and middlewares==================// 
+
+        function init() {
+            setInterval(() => {
+                changeWaterStatus();
+                changeMotorStatus();
+            }, 1000);  //this code checks motor and water status every second
+        }
+
+        function changeWaterStatus() {
+            if (waterStatus.textContent !== 'FULL' && waterLevel) {
+                waterStatus.textContent = 'FULL';
+            } else if (waterStatus.textContent !== 'EMPTY' && !waterLevel) {
+                waterStatus.textContent = 'EMPTY';
+            } else if (waterLevel === undefined) {
+                alert('Water level information not found');
+            }
+        }
+
+
+        function changeMotorStatus() {
+            if (motorSwitch[0].checked !== motorStatus) {
+                time = "unknown";
+                changeMotorLog(time);
+            }
+        }
+
+        function changeMotorLog(time) {
+            if (motorStatus == true) {
+                motorSwitch[0].checked = true;
+                motorON(time);
+            } else {
+                motorSwitch[0].checked = false;
+                motorOFF(time);
+            }
+        }
+
+        function motorON(time) {
+            newLog = document.createElement("div");
+            newLog.classList.add("log")
+            newLog.innerText = `~Motor Switched ON at ${time}`;
+            sensorLog.append(newLog);
+            motorStatus = true;
+
+            //ADD FUNCTIONALITY FOR TURNING ON THE MOTOR.
+            // The functionality will send a signal to the NodeMCU and turn the motor on.
+
+            // Insert code here.
+        }
+
+        function motorOFF(time) {
+            newLog = document.createElement("div");
+            newLog.classList.add("log")
+            newLog.innerText = `~Motor Switched OFF at ${time}`;
+            sensorLog.append(newLog);
+
+            //ADD FUNCTIONALITY FOR TURNING OFF THE MOTOR.
+            // The functionality will send a signal to the NodeMCU and turn the motor on.
+
+            // Insert code here.
+        }
+
+        // TOGGLES and EVENTS
+        motorSwitch[0].addEventListener("click", () => {
+            motorStatus = !motorStatus;
+            time = new Date();
+            changeMotorLog(time);
+        })
+
+    </script>
+    <script>
+        var waterStatus = document.querySelector('#water-status');
+        var motorStatus = document.querySelector('#motor-status');
+        var on = document.querySelector('#on');
+        var off = document.querySelector('#off');
+
+        // This variable will contain the water level information in the form of true or false. 
+        var waterLevel = false; // We can test this variable by putting true,false or no values in it.
+
+        // TOGGLES and EVENTS
+        on.addEventListener("click", function () {
+            if (motorStatus.textContent !== 'ON') {
+                motorStatus.textContent = 'ON';
+            } else {
+                alert('Motor is already On');
+            }
+
+            //ADD FUNCTIONALITY FOR TURNING ON THE MOTOR.
+            // The functionality will send a signal to the NodeMCU and turn the motor on.
+            // Insert code here.
+        });
+
+        off.addEventListener("click", function () {
+            if (motorStatus.textContent !== 'OFF') {
+                motorStatus.textContent = 'OFF';
+            } else {
+                alert('Motor is already Off');
+            }
+
+            //ADD FUNCTIONALITY FOR TURNING OFF THE MOTOR.
+            // The functionality will send a signal to the NodeMCU and turn the motor off .
+            // Insert code here.
+        });
+
+        function changeWaterStatus() {
+            if (waterStatus.textContent !== 'FULL' && waterLevel) {
+                waterStatus.textContent = 'FULL';
+            } else if (waterStatus.textContent !== 'EMPTY' && !waterLevel) {
+                waterStatus.textContent = 'EMPTY';
+            } else if (waterLevel === undefined) {
+                alert('Water level information not found');
+            }
+        }
+
+        // Runs the above function every second and sees if the value of water level has changed or not.
+        setInterval("changeWaterStatus()", 1000);
+    </script>
 </body>
 
 </html>
+<!-- https://tomeko.net/online_tools/cpp_text_escape.php?lang=en -->
