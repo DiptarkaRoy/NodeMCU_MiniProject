@@ -1,19 +1,23 @@
 #include <ESP8266WiFi.h>           // Include the Wi-Fi library
 
-int FloatSensor1 = 12;              //D4 pin of NodeMCU
-int buttonState;                   //reads pushbutton status
+int FloatSensorHigh = 12;              //D6 pin of NodeMCU
+int FloatSensorLow = 15;               //D8 pin of NodeMCU
+int relay = 5;                         // D1 pin of NodeMCU
+int upperLimit,lowerLimit;             //reads pushbutton status
+int value;
+String waterLevel,motorStatus;
+
 const char *ssid = "DEEPSARA_2G";  // The SSID (name) of the Wi-Fi network you want to connect to
 const char *password = "a1b2c3d4"; // The password of the Wi-Fi network
-String waterLevel,motorStatus;
-int relay = 5; // D1 pin of NodeMCU
-int value;
+
+
 WiFiServer server(80);
 void motorON(){
-    digitalWrite(5, HIGH); // if request is ON, turn ON the relay.
+    digitalWrite(relay, HIGH); // if request is ON, turn ON the relay.
      motorStatus = "true"; 
 }
 void motorOFF(){
-    digitalWrite(5, LOW); // if request is OFF, turn OFF the relay.    
+    digitalWrite(relay, LOW); // if request is OFF, turn OFF the relay.    
     motorStatus = "false";
 }
 void setup()
@@ -43,30 +47,37 @@ void setup()
   server.begin();                   //Starting the Server
   Serial.println("Server started"); //Server Started message
 
-  pinMode(FloatSensor1, INPUT_PULLUP); //Arduino Internal Resistor 10K
+  pinMode(FloatSensorHigh, INPUT_PULLUP); //Arduino Internal Resistor 10K
+  pinMode(FloatSensorLow, INPUT_PULLUP); //Arduino Internal Resistor 10K
   pinMode(relay, OUTPUT);              // set relay pin as output
-  digitalWrite(relay, LOW);
+  motorOFF();
   delay(4000);
 }
 
 void loop()
 {
   
-  buttonState = digitalRead(FloatSensor1); // read the value of float sensor
-  if (buttonState == LOW)                  // if the value is HIGH
-  {                                        // the level is high
+  upperLimit = digitalRead(FloatSensorHigh); // read the value of FloatSensorHigh sensor
+  lowerLimit = digitalRead(FloatSensorLow); // read the value of FloatSensorLow sensor
+
+  bool tooHigh = (lowerLimit == LOW && lowerLimit == LOW); // if both the float sensors are floating
+  bool tooLow = (lowerLimit == HIGH && lowerLimit == HIGH); // if both the float sensors are not floating
+
+  
+  
+  if (tooHigh)   // if the value is tooHIGH 
+  {                                        
     Serial.println("WATER LEVEL - HIGH");
     waterLevel = "true";
-    digitalWrite(relay, LOW); // turn OFF the relay
-    motorStatus = "false";
+    motorOFF();         //turn OFF the motor
   }
-  else
+  else if(tooLow)
   {
-    Serial.println("WATER LEVEL - LOW"); // if the value is LOW
-    waterLevel = "false";                     // the level is low
-    digitalWrite(relay, HIGH);           // turn ON the relay
-    motorStatus = "true";
+    Serial.println("WATER LEVEL - LOW");   // if the value is tooLOW
+    waterLevel = "false";                     
+    motorON();        //turn ON the motor
   }
+  
   WiFiClient client = server.available(); // Check if a client has connected
   if (!client)
   {
@@ -77,11 +88,12 @@ void loop()
   client.flush();
   
   // Match the request
-  if (request.indexOf("/MOTOR=ON") != -1)
+
+  if (request.indexOf("/MOTOR=ON") != -1 && !(tooLow||tooHigh))       //if the value is neither tooLow or tooHigh then do whatever the user says
   {
-     motorON();
+     motorON();   
   }
-  if (request.indexOf("/MOTOR=OFF") != -1)
+  if (request.indexOf("/MOTOR=OFF") != -1 && !(tooLow||tooHigh))      //if the value is neither tooLow or tooHigh then do whatever the user says
   {
     motorOFF();
   }
