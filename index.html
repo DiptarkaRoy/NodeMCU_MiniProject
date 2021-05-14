@@ -4,6 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="refresh" content="15">
     <title>IOT Water-level Indicator NodeMCU</title>
     <link rel="preconnect" href="https://fonts.gstatic.com">
     <link href="https://fonts.googleapis.com/css2?family=Kiwi+Maru:wght@500&display=swap" rel="stylesheet">
@@ -141,6 +142,7 @@
         </div>
     </main>
     <script>
+
         //DOM variables
         const motorSwitch = document.getElementsByClassName('switch'),
             sensorLog = document.querySelector('#sensor-log');
@@ -150,8 +152,8 @@
             time = new Date();
 
         // NodeMCU Variables
-        const waterLevel = false;
-        let motorStatus = true;
+        let waterLevel = false;
+        let motorStatusBoolean = true;
 
         //Initialising everything
         init();
@@ -177,14 +179,14 @@
 
 
         function changeMotorStatus() {
-            if (motorSwitch[0].checked !== motorStatus) {
+            if (motorSwitch[0].checked !== motorStatusBoolean) {
                 time = "unknown";
                 changeMotorLog(time);
             }
         }
 
         function changeMotorLog(time) {
-            if (motorStatus == true) {
+            if (motorStatusBoolean == true) {
                 motorSwitch[0].checked = true;
                 motorON(time);
             } else {
@@ -198,7 +200,7 @@
             newLog.classList.add("log")
             newLog.innerText = `~Motor Switched ON at ${time}`;
             sensorLog.append(newLog);
-            motorStatus = true;
+            motorStatusBoolean = true;
 
             //ADD FUNCTIONALITY FOR TURNING ON THE MOTOR.
             // The functionality will send a signal to the NodeMCU and turn the motor on.
@@ -220,45 +222,23 @@
 
         // TOGGLES and EVENTS
         motorSwitch[0].addEventListener("click", () => {
-            motorStatus = !motorStatus;
+            motorStatusBoolean = !motorStatusBoolean;
             time = new Date();
             changeMotorLog(time);
+
+            let currentlocation = window.location.origin + "/MOTOR=ON";
+            console.log(currentlocation);
+            if (motorSwitch[0].checked == true) {
+                window.location = window.location.origin + "/MOTOR=ON";
+            }
+            else {
+                window.location = window.location.origin + "/MOTOR=OFF";
+            }
         })
 
-    </script>
-    <script>
         var waterStatus = document.querySelector('#water-status');
-        var motorStatus = document.querySelector('#motor-status');
-        var on = document.querySelector('#on');
-        var off = document.querySelector('#off');
-
-        // This variable will contain the water level information in the form of true or false. 
-        var waterLevel = false; // We can test this variable by putting true,false or no values in it.
 
         // TOGGLES and EVENTS
-        on.addEventListener("click", function () {
-            if (motorStatus.textContent !== 'ON') {
-                motorStatus.textContent = 'ON';
-            } else {
-                alert('Motor is already On');
-            }
-
-            //ADD FUNCTIONALITY FOR TURNING ON THE MOTOR.
-            // The functionality will send a signal to the NodeMCU and turn the motor on.
-            // Insert code here.
-        });
-
-        off.addEventListener("click", function () {
-            if (motorStatus.textContent !== 'OFF') {
-                motorStatus.textContent = 'OFF';
-            } else {
-                alert('Motor is already Off');
-            }
-
-            //ADD FUNCTIONALITY FOR TURNING OFF THE MOTOR.
-            // The functionality will send a signal to the NodeMCU and turn the motor off .
-            // Insert code here.
-        });
 
         function changeWaterStatus() {
             if (waterStatus.textContent !== 'FULL' && waterLevel) {
@@ -273,6 +253,7 @@
         // Runs the above function every second and sees if the value of water level has changed or not.
         setInterval("changeWaterStatus()", 1000);
     </script>
+
 </body>
 
 </html>
