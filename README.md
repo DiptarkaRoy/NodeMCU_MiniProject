@@ -17,3 +17,13 @@ In this project we have used NodeMCU instead of the more popular Arduino because
 4. Connect your PC to NodeMCU using appropriate USB cable.
 5. Copy and Paste the file NodeMCUcode.c in your Arduino.
 6. Click on the `Upload` button.
+
+## Presentation
+>Below is the presentation for the project showing the working of the project along with the components used
+ 
+[Mini Project Final Presentation](/MINI%20PROJECT-II%20FINAL%20PRESENTATION.pptx)
+
+## Mini Project Report
+Here's the report explaining the need the working and the implementation of the project.
+
+[Mini Project Final Report](/Mini%20Project%20Smart%20Water%20Level%20Indicator.docx)
